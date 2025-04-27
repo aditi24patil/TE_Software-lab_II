@@ -2,58 +2,48 @@
 
 import numpy as np
 
-def ascii_to_binary_array(ch):
-    return np.array([int(bit) for bit in format(ord(ch), '08b')])
-
-training_data = []
-labels = []
-
-for i in range(10):
-    ascii_array = ascii_to_binary_array(str(i))
-    training_data.append(ascii_array)
-    if i % 2 == 0:
-        labels.append(0)  # even
-    else:
-        labels.append(1)  # odd
-
-training_data = np.array(training_data)
-labels = np.array(labels)
-
-weights = np.zeros(8)
-bias = 0
-learning_rate = 0.1
-
-def step_function(x):
+def prediction(x):
     return 1 if x >= 0 else 0
 
+# Input from user
+num = int(input("ENTER A DIGIT FROM (0-9):"))
+
+# Correct training data
+# Inputs: 6-bit binary representation
+# Labels: 1 = odd, 0 = even
+training_data = [
+    {'input': [0,0,0,0,0,0], 'label': 0},  # 0 even
+    {'input': [0,0,0,0,0,1], 'label': 1},  # 1 odd
+    {'input': [0,0,0,0,1,0], 'label': 0},  # 2 even
+    {'input': [0,0,0,0,1,1], 'label': 1},  # 3 odd
+    {'input': [0,0,0,1,0,0], 'label': 0},  # 4 even
+    {'input': [0,0,0,1,0,1], 'label': 1},  # 5 odd
+    {'input': [0,0,0,1,1,0], 'label': 0},  # 6 even
+    {'input': [0,0,0,1,1,1], 'label': 1},  # 7 odd
+    {'input': [0,0,1,0,0,0], 'label': 0},  # 8 even
+    {'input': [0,0,1,0,0,1], 'label': 1}   # 9 odd
+]
+
+# Initialize weights
+weights = np.zeros(6)
+learning_rate = 0.1
+
+# Training
 for epoch in range(100):
-    total_error = 0
-    for inputs, label in zip(training_data, labels):
-        linear_output = np.dot(inputs, weights) + bias
-        prediction = step_function(linear_output)
-        error = label - prediction
+    for data in training_data:
+        inputs = np.array(data['input'])
+        label = data['label']
+        output = prediction(np.dot(inputs, weights))
+        error = label - output
         weights += learning_rate * error * inputs
-        bias += learning_rate * error
-        total_error += abs(error)
-    if total_error == 0:
-        break
 
-print("\nTraining complete!")
+# User input conversion
+user_input = [int(bit) for bit in f'{num:06b}']
+print("Binary input:", user_input)
 
-while True:
-    ch = input("\nEnter a single digit (0-9) or 'q' to quit: ")
-    if ch == 'q':
-        break
-    if ch not in "0123456789":
-        print("Invalid input! Enter a single digit.")
-        continue
+out = prediction(np.dot(user_input, weights))
 
-    input_array = ascii_to_binary_array(ch)
-    output = step_function(np.dot(input_array, weights) + bias)
-
-    if output == 0:
-        print(f"{ch} is Even!")
-    else:
-        print(f"{ch} is Odd!")
-******************************************************************************************************************************************************************************
-OR other option
+if out == 0:
+    print('EVEN number')
+else:
+    print('ODD number')
